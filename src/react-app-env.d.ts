@@ -7,3 +7,7 @@ interface PaginationProps {
     totalElements: number;
   }
   
+//   interface CustomJwtPayload extends JwtPayload {
+//     userId: number;
+//     email: string;
+// }

@@ -1,6 +1,24 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { signup } from '../service/auth/signup';
 
 const SignUpPage: React.FC = () => {
+    const [username, setUsername] = useState('');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
+    const navigate = useNavigate();
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        try {
+            await signup(username, email, password);
+            navigate('/login');
+        } catch (err: any) {
+            setError(err.response?.data?.message || 'An error occurred during signup.');
+        }
+    };
+
     return (
         <div className="flex items-center justify-center min-h-screen bg-gray-100">
             <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-md">
@@ -9,17 +27,20 @@ const SignUpPage: React.FC = () => {
                 </div>
                 <h3 className="text-2xl font-semibold text-center">Get started with us</h3>
                 <p className="text-center text-gray-600 mb-6">Create your account</p>
-                <form className="space-y-5">
+                {error && <p className="text-center text-red-500">{error}</p>}
+                <form className="space-y-5" onSubmit={handleSubmit}>
                     <div>
                         <label htmlFor="username" className="block text-sm font-medium text-gray-700">
                             Username
                         </label>
                         <div className="mt-1">
                             <input
-                                type="username"
+                                type="text"
                                 name="username"
                                 id="username"
                                 required
+                                value={username}
+                                onChange={(e) => setUsername(e.target.value)}
                                 className="w-full px-3 py-2 bg-gray-100 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                 placeholder="Username"
                             />
@@ -36,6 +57,8 @@ const SignUpPage: React.FC = () => {
                                 name="email"
                                 id="email"
                                 required
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
                                 className="w-full px-3 py-2 bg-gray-100 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                 placeholder="Email Address"
                             />
@@ -52,6 +75,8 @@ const SignUpPage: React.FC = () => {
                                 name="password"
                                 id="password"
                                 required
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
                                 className="w-full px-3 py-2 bg-gray-100 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                 placeholder="Password"
                             />

@@ -1,6 +1,36 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import { login } from '../service/auth/login';
+import { setAuthToken } from '../store/authSlice';
+import { RootState } from '../store';
 
 const LoginPage: React.FC = () => {
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        try {
+            const data = await login(email, password);
+            dispatch(setAuthToken(data.token));
+            navigate('/dashboard'); 
+        } catch (err) {
+            setError('Invalid credentials. Please try again.');
+        }
+    };
+
+    const { isAuthenticated } = useSelector((state: RootState) => state.auth);
+
+    useEffect(() => {
+        if (isAuthenticated) {
+            navigate('/dashboard');
+        }
+    }, [isAuthenticated, navigate]);
+    
     return (
         <div className="flex items-center justify-center min-h-screen bg-gray-100">
             <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-md">
@@ -9,7 +39,8 @@ const LoginPage: React.FC = () => {
                 </div>
                 <h3 className="text-2xl font-semibold text-center">Welcome Back!</h3>
                 <p className="text-center text-gray-600 mb-6">Sign in to your account</p>
-                <form className="space-y-4">
+                {error && <p className="text-center text-red-500">{error}</p>}
+                <form className="space-y-4" onSubmit={handleSubmit}>
                     <div>
                         <label htmlFor="email" className="block text-sm font-medium text-gray-600">
                             Email Address
@@ -20,6 +51,8 @@ const LoginPage: React.FC = () => {
                                 name="email"
                                 id="email"
                                 required
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
                                 className="w-full px-3 py-2 bg-gray-100 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                 placeholder="Email Address"
                             />
@@ -36,6 +69,8 @@ const LoginPage: React.FC = () => {
                                 name="password"
                                 id="password"
                                 required
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
                                 className="w-full px-3 py-2 bg-gray-100 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                 placeholder="Password"
                             />
