@@ -15,7 +15,10 @@ const SignUpPage: React.FC = () => {
             await signup(username, email, password);
             navigate('/login');
         } catch (err: any) {
-            setError(err.response?.data?.message || 'An error occurred during signup.');
+            setError(
+                err.response?.data?.message ||
+                    'An error occurred during signup.'
+            );
         }
     };
 
@@ -25,12 +28,19 @@ const SignUpPage: React.FC = () => {
                 <div className="flex justify-center mb-4">
                     <img src="/logo192.png" alt="Logo" className="w-1/4" />
                 </div>
-                <h3 className="text-2xl font-semibold text-center">Get started with us</h3>
-                <p className="text-center text-gray-600 mb-6">Create your account</p>
+                <h3 className="text-2xl font-semibold text-center">
+                    Get started with us
+                </h3>
+                <p className="text-center text-gray-600 mb-6">
+                    Create your account
+                </p>
                 {error && <p className="text-center text-red-500">{error}</p>}
                 <form className="space-y-5" onSubmit={handleSubmit}>
                     <div>
-                        <label htmlFor="username" className="block text-sm font-medium text-gray-700">
+                        <label
+                            htmlFor="username"
+                            className="block text-sm font-medium text-gray-700"
+                        >
                             Username
                         </label>
                         <div className="mt-1">
@@ -48,7 +58,10 @@ const SignUpPage: React.FC = () => {
                     </div>
 
                     <div>
-                        <label htmlFor="email" className="block text-sm font-medium text-gray-600">
+                        <label
+                            htmlFor="email"
+                            className="block text-sm font-medium text-gray-600"
+                        >
                             Email Address
                         </label>
                         <div className="mt-1 relative">
@@ -66,7 +79,10 @@ const SignUpPage: React.FC = () => {
                     </div>
 
                     <div>
-                        <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                        <label
+                            htmlFor="password"
+                            className="block text-sm font-medium text-gray-700"
+                        >
                             Password
                         </label>
                         <div className="mt-1 relative">
@@ -94,7 +110,10 @@ const SignUpPage: React.FC = () => {
 
                     <p className="text-center text-gray-600">
                         Already have an account?{' '}
-                        <a href="/login" className="text-blue-500 hover:underline">
+                        <a
+                            href="/login"
+                            className="text-blue-500 hover:underline"
+                        >
                             Login
                         </a>
                     </p>

@@ -1,10 +1,9 @@
-import { useDispatch } from "react-redux";
-import { useLocation, useNavigate } from "react-router-dom";
-import { logout } from "../store/authSlice";
+import { useDispatch } from 'react-redux';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { logout } from '../store/authSlice';
 
 export const HeaderComponent = () => {
-
-  const location = useLocation();
+    const location = useLocation();
     const hideHeaderRoutes = ['/login', '/signup', '/'];
 
     const dispatch = useDispatch();
@@ -14,12 +13,12 @@ export const HeaderComponent = () => {
         dispatch(logout());
         navigate('/login');
     };
-    
+
     // Hide the header on specific routes
     if (hideHeaderRoutes.includes(location.pathname)) {
         return null;
     }
-    
+
     return (
         <div className="flex justify-between items-center px-4 md:px-8 lg:px-12 h-[70px]">
             <div className="flex gap-2 md:gap-3 items-center">
@@ -36,7 +35,10 @@ export const HeaderComponent = () => {
                     {/* <button className="text-white px-2 md:px-4 font-semibold">
                         Signup
                     </button> */}
-                    <button className="text-white px-2 md:px-4 font-semibold" onClick={handleLogout}>
+                    <button
+                        className="text-white px-2 md:px-4 font-semibold"
+                        onClick={handleLogout}
+                    >
                         Logout
                     </button>
                 </div>

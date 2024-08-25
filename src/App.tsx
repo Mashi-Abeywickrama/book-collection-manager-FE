@@ -14,7 +14,7 @@ const App = () => {
     useEffect(() => {
         dispatch(checkTokenExpiration());
     }, [dispatch]);
-    
+
     const router = createBrowserRouter(createRoutesFromElements(Routes));
 
     return (
