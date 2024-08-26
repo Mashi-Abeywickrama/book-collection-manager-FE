@@ -1,32 +1,36 @@
 import React, { useEffect, useState } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { fetchBookById, updateBook } from '../store/bookSlice';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { useNavigate, useParams } from 'react-router-dom';
+import { fetchGenresAsync, selectGenre } from '../store/genreSlice';
+import { toast } from 'react-toastify';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 
 export const BookDetails: React.FC = () => {
-    const { id } = useParams<{ id: string }>();
+const { id } = useParams<{ id: string }>();
     const dispatch = useAppDispatch();
     const bookDetails = useAppSelector((state) =>
         state.books.books.find((book) => book._id === id)
     );
+    const genres = useAppSelector(selectGenre); // Fetch genres from Redux store
     const loading = useAppSelector((state) => state.books.loading);
     const error = useAppSelector((state) => state.books.error);
     const [isEditing, setIsEditing] = useState(false);
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
+
     const navigate = useNavigate();
 
     const handleBackClick = () => {
         navigate(-1);
     };
-
+    
     const [bookData, setBookData] = useState({
         title: '',
         author: '',
         isbn: '',
         publicationDate: '',
-        genre: {} as Genre,
+        genre: '',
         summary: '',
     });
 
@@ -34,6 +38,7 @@ export const BookDetails: React.FC = () => {
         if (id) {
             dispatch(fetchBookById(id));
         }
+        dispatch(fetchGenresAsync()); // Fetch genres when component mounts
     }, [id, dispatch]);
 
     useEffect(() => {
@@ -43,7 +48,7 @@ export const BookDetails: React.FC = () => {
                 author: bookDetails.author,
                 isbn: bookDetails.isbn,
                 publicationDate: bookDetails.publicationDate,
-                genre: bookDetails.genre,
+                genre: bookDetails.genre._id, // Set genre ID
                 summary: bookDetails.summary,
             });
         }
@@ -60,7 +65,7 @@ export const BookDetails: React.FC = () => {
         return newErrors;
     };
 
-    const handleEditClick = () => {
+    const handleEditClick = async () => {
         if (isEditing) {
             const validationErrors = validate();
             if (Object.keys(validationErrors).length > 0) {
@@ -69,25 +74,30 @@ export const BookDetails: React.FC = () => {
             }
             const formData = new FormData();
             Object.entries(bookData).forEach(([key, value]) => {
-                if (typeof value === 'string') {
-                    formData.append(key, value);
-                }
+                formData.append(key, value);
             });
             if (id) {
-                dispatch(updateBook({ bookId: id, bookData: formData }));
+                const resultAction = await dispatch(updateBook({ bookId: id, bookData: formData }));
+                if (updateBook.fulfilled.match(resultAction)) {
+                toast.success('Book updated successfully.');
+
+                    // Update bookData with the updated book details
+                    setBookData(resultAction.payload);
+                    setIsEditing(false);
+                }
             }
+        } else {
+            setIsEditing(true);
         }
-        setIsEditing(!isEditing);
     };
 
     const handleInputChange = (
-        event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+        event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
     ) => {
         const { name, value } = event.target;
         setBookData({ ...bookData, [name]: value });
         setErrors({ ...errors, [name]: '' });
     };
-
     return (
         <div className="bg-white shadow-md rounded-lg p-8 max-w-6xl mx-auto">
             <div className="flex items-center justify-between mb-8">
@@ -112,21 +122,11 @@ export const BookDetails: React.FC = () => {
                     <div className="md:w-1/3 flex flex-col items-center">
                         <img
                             src={
-                                '/defaultBook.jpg'
+                                'https://img.freepik.com/free-photo/book-composition-with-open-book_23-2147690555.jpg?size=626&ext=jpg'
                             }
                             alt="Book Cover"
-                            className="w-full h-auto rounded-lg object-cover shadow-sm mb-4"
+                            className="w-full h-full rounded-lg object-cover shadow-sm mb-4"
                         />
-                        <label className="block">
-                            <input
-                                type="file"
-                                accept="image/*"
-                                className="hidden"
-                            />
-                            <button className="bg-blue-500 text-white px-4 py-2 rounded-lg shadow hover:bg-blue-600 focus:outline-none hidden">
-                                Upload Image
-                            </button>
-                        </label>
                     </div>
 
                     {/* Right side - Book Details */}
@@ -248,23 +248,28 @@ export const BookDetails: React.FC = () => {
                                     </span>
                                 )}
                                 <div>
-                                    <label
-                                        htmlFor="genre"
-                                        className="block text-sm font-medium text-gray-600"
-                                    >
+                                    <label htmlFor="genre" className="block text-sm font-medium text-gray-600">
                                         Genre
                                     </label>
                                     <div className="mt-1 relative">
-                                        <input
-                                            type="text"
+                                        <select
                                             name="genre"
                                             id="genre"
-                                            readOnly
-                                            value={bookData.genre.name}
+                                            value={bookData.genre}
+                                            onChange={handleInputChange}
                                             className="w-full px-4 py-2 bg-gray-100 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                        />
+                                            required
+                                        >
+                                            <option value="">Select a genre</option>
+                                            {genres.map((genre) => (
+                                                <option key={genre._id} value={genre._id}>
+                                                    {genre.name}
+                                                </option>
+                                            ))}
+                                        </select>
                                     </div>
                                 </div>
+                                {errors.genre && <span className="text-red-500 text-sm">{errors.genre}</span>}
                                 {errors.genre && (
                                     <span className="text-red-500 text-sm">
                                         {errors.genre}
@@ -299,7 +304,9 @@ export const BookDetails: React.FC = () => {
                                 </p>
                                 <p className="text-sm text-gray-600">
                                     <span className="font-medium">Genre:</span>{' '}
-                                    {bookData.genre.name}
+                                    {genres.find(
+                                        (genre) => genre._id === bookData.genre
+                                    )?.name}
                                 </p>
                             </>
                         )}
