@@ -17,8 +17,8 @@ const Pagination: React.FC<PaginationProps> = ({
             <div className="text-sm text-slate-500">
                 Showing{' '}
                 <b>
-                    {(currentPage - 1) * 9 + 1}-
-                    {Math.min(currentPage * 9, totalElements)}
+                    {(currentPage - 1) * 8 + 1}-
+                    {Math.min(currentPage * 8, totalElements)}
                 </b>{' '}
                 of {totalElements}
             </div>

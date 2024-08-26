@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
-import { addBook } from '../store/bookSlice';
+import { useSelector } from 'react-redux';
+import { addBook, fetchBooks } from '../store/bookSlice';
 import { useAppDispatch } from '../store/hooks';
+import { fetchGenresAsync, selectGenre } from '../store/genreSlice';
 import axiosInstance from '../service/api/axiosInstance';
 
 const AddBookModal: React.FC<AddBookModalProps> = ({
     isOpen,
     onClose,
-    genres,
 }) => {
     const dispatch = useAppDispatch();
+    const genres = useSelector(selectGenre); // Fetching genres from Redux store
     const [title, setTitle] = useState('');
     const [author, setAuthor] = useState('');
     const [genre, setGenre] = useState('');
@@ -25,8 +27,8 @@ const AddBookModal: React.FC<AddBookModalProps> = ({
             });
             const addedGenre = response.data;
 
-            genres.push(addedGenre);
-            setGenre(addedGenre._id);
+            dispatch(fetchGenresAsync()); // Re-fetch genres to update the state
+            setGenre(addedGenre._id); // Set the newly added genre
             setNewGenre('');
             setIsAddingNewGenre(false);
         } catch (error) {
@@ -34,7 +36,7 @@ const AddBookModal: React.FC<AddBookModalProps> = ({
         }
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         const formData = new FormData();
         formData.append('title', title);
@@ -43,7 +45,16 @@ const AddBookModal: React.FC<AddBookModalProps> = ({
         formData.append('publicationDate', publicationDate);
         formData.append('isbn', isbn);
         formData.append('summary', summary);
-        dispatch(addBook(formData));
+        try{
+            dispatch(addBook(formData)); // Dispatch action to add a new book
+            dispatch(fetchBooks());// Fetch books to update the list
+            onClose();
+        }
+        catch(error){
+            console.error('Failed to add new book:', error);
+        }
+        dispatch(addBook(formData)); // Dispatch action to add a new book
+        dispatch(fetchBooks());// Fetch books to update the list
         onClose();
     };
 
@@ -54,6 +65,7 @@ const AddBookModal: React.FC<AddBookModalProps> = ({
             <div className="bg-white p-6 rounded-lg shadow-lg w-full sm:w-3/4 md:w-1/2 lg:w-1/3">
                 <h2 className="text-xl font-semibold mb-4">Add New Book</h2>
                 <form onSubmit={handleSubmit}>
+                    {/* Title Input */}
                     <div className="mb-4">
                         <label className="block text-sm font-medium text-gray-700">
                             Title
@@ -68,6 +80,8 @@ const AddBookModal: React.FC<AddBookModalProps> = ({
                             required
                         />
                     </div>
+
+                    {/* Author Input */}
                     <div className="mb-4">
                         <label className="block text-sm font-medium text-gray-700">
                             Author
@@ -80,6 +94,8 @@ const AddBookModal: React.FC<AddBookModalProps> = ({
                             required
                         />
                     </div>
+
+                    {/* Genre Selection or Addition */}
                     <div className="mb-4">
                         <label className="block text-sm font-medium text-gray-700">
                             Genre
@@ -139,6 +155,8 @@ const AddBookModal: React.FC<AddBookModalProps> = ({
                             </div>
                         )}
                     </div>
+
+                    {/* Publication Date Input */}
                     <div className="mb-4">
                         <label className="block text-sm font-medium text-gray-700">
                             Publication Date
@@ -151,6 +169,8 @@ const AddBookModal: React.FC<AddBookModalProps> = ({
                             required
                         />
                     </div>
+
+                    {/* ISBN Input */}
                     <div className="mb-4">
                         <label className="block text-sm font-medium text-gray-700">
                             ISBN
@@ -163,6 +183,8 @@ const AddBookModal: React.FC<AddBookModalProps> = ({
                             required
                         />
                     </div>
+
+                    {/* Summary Input */}
                     <div className="mb-4">
                         <label className="block text-sm font-medium text-gray-700">
                             Summary
@@ -173,6 +195,8 @@ const AddBookModal: React.FC<AddBookModalProps> = ({
                             onChange={(e) => setSummary(e.target.value)}
                         />
                     </div>
+
+                    {/* Action Buttons */}
                     <div className="flex justify-end">
                         <button
                             type="button"

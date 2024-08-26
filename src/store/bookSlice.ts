@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from '.';
 import axiosInstance from '../service/api/axiosInstance';
+import { toast } from 'react-toastify';
 
 export const fetchBooks = createAsyncThunk('books/fetchBooks', async () => {
     const response = await axiosInstance.get('/book');
@@ -27,6 +28,10 @@ export const addBook = createAsyncThunk(
             const response = await axiosInstance.post('/book', bookData);
             return response.data;
         } catch (error: any) {
+            if (error.response && error.response.status === 409) {
+                toast.error('Failed to add book: ISBN already exists.');
+                return rejectWithValue('ISBN already exists');
+            }
             return rejectWithValue(error.response.data);
         }
     }

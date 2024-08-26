@@ -41,3 +41,8 @@ interface GenreState {
     status: 'idle' | 'loading' | 'succeeded' | 'failed';
     error: string | null;
 }
+
+interface Genre {
+    name: string;
+    _id: string;
+}

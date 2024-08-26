@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { fetchBookById, updateBook } from '../store/bookSlice';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 export const BookDetails: React.FC = () => {
     const { id } = useParams<{ id: string }>();
@@ -13,10 +15,11 @@ export const BookDetails: React.FC = () => {
     const error = useAppSelector((state) => state.books.error);
     const [isEditing, setIsEditing] = useState(false);
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
-    interface Genre {
-        name: string;
-        _id: string;
-    }
+    const navigate = useNavigate();
+
+    const handleBackClick = () => {
+        navigate(-1);
+    };
 
     const [bookData, setBookData] = useState({
         title: '',
@@ -86,21 +89,30 @@ export const BookDetails: React.FC = () => {
     };
 
     return (
-        <div className="bg-white shadow-lg rounded-lg p-6 max-w-4xl mx-auto">
-            <h1 className="text-3xl font-bold text-gray-900 mb-6 text-center">
-                Book Details
-            </h1>
+        <div className="bg-white shadow-md rounded-lg p-8 max-w-6xl mx-auto">
+            <div className="flex items-center justify-between mb-8">
+                <button
+                    onClick={handleBackClick}
+                    className="text-gray-500 hover:text-gray-700 focus:outline-none"
+                >
+                    <FontAwesomeIcon icon={faArrowLeft} className="mr-2" />
+                    Back
+                </button>
+                <h1 className="text-3xl font-semibold text-gray-900 text-center flex-1">
+                    Book Details
+                </h1>
+            </div>
             {loading ? (
-                <p>Loading...</p>
+                <p className="text-gray-500">Loading...</p>
             ) : error ? (
-                <p>Error: {error}</p>
+                <p className="text-red-500">Error: {error}</p>
             ) : (
-                <div className="flex flex-col md:flex-row bg-gray-50 shadow-inner rounded-lg p-5 gap-6">
+                <div className="flex flex-col md:flex-row bg-gray-50 shadow-inner rounded-lg p-6 gap-8">
                     {/* Left side - Book Image */}
-                    <div className="md:w-1/3 flex flex-col items-center mb-4 md:mb-0">
+                    <div className="md:w-1/3 flex flex-col items-center">
                         <img
                             src={
-                                'https://img.freepik.com/free-photo/book-composition-with-open-book_23-2147690555.jpg?size=626&ext=jpg'
+                                '/defaultBook.jpg'
                             }
                             alt="Book Cover"
                             className="w-full h-auto rounded-lg object-cover shadow-sm mb-4"
@@ -118,7 +130,7 @@ export const BookDetails: React.FC = () => {
                     </div>
 
                     {/* Right side - Book Details */}
-                    <div className="md:w-2/3 flex flex-col justify-center">
+                    <div className="md:w-2/3 flex flex-col justify-center space-y-6">
                         {isEditing ? (
                             <>
                                 <div>
@@ -136,12 +148,12 @@ export const BookDetails: React.FC = () => {
                                             required
                                             value={bookData.title}
                                             onChange={handleInputChange}
-                                            className="w-full px-3 py-2 bg-gray-100 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                            className="w-full px-4 py-2 bg-gray-100 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                         />
                                     </div>
                                 </div>
                                 {errors.title && (
-                                    <span className="text-red-500">
+                                    <span className="text-red-500 text-sm">
                                         {errors.title}
                                     </span>
                                 )}
@@ -159,109 +171,105 @@ export const BookDetails: React.FC = () => {
                                             required
                                             value={bookData.summary}
                                             onChange={handleInputChange}
-                                            className="w-full px-3 py-2 bg-gray-100 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                            className="w-full px-4 py-2 bg-gray-100 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                         />
                                     </div>
                                 </div>
-                                <div className="text-gray-800 space-y-2">
-                                    <div>
-                                        <label
-                                            htmlFor="author"
-                                            className="block text-sm font-medium text-gray-600"
-                                        >
-                                            Author
-                                        </label>
-                                        <div className="mt-1 relative">
-                                            <input
-                                                type="text"
-                                                name="author"
-                                                id="author"
-                                                required
-                                                value={bookData.author}
-                                                onChange={handleInputChange}
-                                                className="w-full px-3 py-2 bg-gray-100 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                            />
-                                        </div>
+                                <div>
+                                    <label
+                                        htmlFor="author"
+                                        className="block text-sm font-medium text-gray-600"
+                                    >
+                                        Author
+                                    </label>
+                                    <div className="mt-1 relative">
+                                        <input
+                                            type="text"
+                                            name="author"
+                                            id="author"
+                                            required
+                                            value={bookData.author}
+                                            onChange={handleInputChange}
+                                            className="w-full px-4 py-2 bg-gray-100 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        />
                                     </div>
-                                    {errors.author && (
-                                        <span className="text-red-500">
-                                            {errors.author}
-                                        </span>
-                                    )}
-                                    <div>
-                                        <label
-                                            htmlFor="isbn"
-                                            className="block text-sm font-medium text-gray-600"
-                                        >
-                                            ISBN Number
-                                        </label>
-                                        <div className="mt-1 relative">
-                                            <input
-                                                type="text"
-                                                name="isbn"
-                                                id="isbn"
-                                                required
-                                                value={bookData.isbn}
-                                                onChange={handleInputChange}
-                                                className="w-full px-3 py-2 bg-gray-100 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                            />
-                                        </div>
-                                    </div>
-                                    {errors.isbn && (
-                                        <span className="text-red-500">
-                                            {errors.isbn}
-                                        </span>
-                                    )}
-                                    <div>
-                                        <label
-                                            htmlFor="isbn"
-                                            className="block text-sm font-medium text-gray-600"
-                                        >
-                                            ISBN Number
-                                        </label>
-                                        <div className="mt-1 relative">
-                                            <input
-                                                type="date"
-                                                name="publicationDate"
-                                                id="publicationDate"
-                                                required
-                                                value={bookData.publicationDate}
-                                                onChange={handleInputChange}
-                                                className="w-full px-3 py-2 bg-gray-100 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                            />
-                                        </div>
-                                    </div>
-
-                                    {errors.publicationDate && (
-                                        <span className="text-red-500">
-                                            {errors.publicationDate}
-                                        </span>
-                                    )}
-                                    <div>
-                                        <label
-                                            htmlFor="genre"
-                                            className="block text-sm font-medium text-gray-600"
-                                        >
-                                            Genre
-                                        </label>
-                                        <div className="mt-1 relative">
-                                            <input
-                                                type="text"
-                                                name="genre"
-                                                id="genre"
-                                                readOnly
-                                                value={bookData.genre._id}
-                                                onChange={handleInputChange}
-                                                className="w-full px-3 py-2 bg-gray-100 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                            />
-                                        </div>
-                                    </div>
-                                    {errors.genre && (
-                                        <span className="text-red-500">
-                                            {errors.genre}
-                                        </span>
-                                    )}
                                 </div>
+                                {errors.author && (
+                                    <span className="text-red-500 text-sm">
+                                        {errors.author}
+                                    </span>
+                                )}
+                                <div>
+                                    <label
+                                        htmlFor="isbn"
+                                        className="block text-sm font-medium text-gray-600"
+                                    >
+                                        ISBN Number
+                                    </label>
+                                    <div className="mt-1 relative">
+                                        <input
+                                            type="text"
+                                            name="isbn"
+                                            id="isbn"
+                                            required
+                                            value={bookData.isbn}
+                                            onChange={handleInputChange}
+                                            className="w-full px-4 py-2 bg-gray-100 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        />
+                                    </div>
+                                </div>
+                                {errors.isbn && (
+                                    <span className="text-red-500 text-sm">
+                                        {errors.isbn}
+                                    </span>
+                                )}
+                                <div>
+                                    <label
+                                        htmlFor="publicationDate"
+                                        className="block text-sm font-medium text-gray-600"
+                                    >
+                                        Published Date
+                                    </label>
+                                    <div className="mt-1 relative">
+                                        <input
+                                            type="date"
+                                            name="publicationDate"
+                                            id="publicationDate"
+                                            required
+                                            value={bookData.publicationDate}
+                                            onChange={handleInputChange}
+                                            className="w-full px-4 py-2 bg-gray-100 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        />
+                                    </div>
+                                </div>
+                                {errors.publicationDate && (
+                                    <span className="text-red-500 text-sm">
+                                        {errors.publicationDate}
+                                    </span>
+                                )}
+                                <div>
+                                    <label
+                                        htmlFor="genre"
+                                        className="block text-sm font-medium text-gray-600"
+                                    >
+                                        Genre
+                                    </label>
+                                    <div className="mt-1 relative">
+                                        <input
+                                            type="text"
+                                            name="genre"
+                                            id="genre"
+                                            readOnly
+                                            value={bookData.genre.name}
+                                            className="w-full px-4 py-2 bg-gray-100 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        />
+                                    </div>
+                                </div>
+                                {errors.genre && (
+                                    <span className="text-red-500 text-sm">
+                                        {errors.genre}
+                                    </span>
+                                )}
                             </>
                         ) : (
                             <>
@@ -271,39 +279,36 @@ export const BookDetails: React.FC = () => {
                                 <p className="text-gray-700 mb-6">
                                     {bookData.summary}
                                 </p>
-                                <div className="text-gray-800 space-y-2">
-                                    <p>
-                                        <span className="font-medium">
-                                            Author:
-                                        </span>{' '}
-                                        {bookData.author}
-                                    </p>
-                                    <p>
-                                        <span className="font-medium">
-                                            ISBN:
-                                        </span>{' '}
-                                        {bookData.isbn}
-                                    </p>
-                                    <p>
-                                        <span className="font-medium">
-                                            Published Date:
-                                        </span>{' '}
-                                        {bookData.publicationDate}
-                                    </p>
-                                    <p>
-                                        <span className="font-medium">
-                                            Genre:
-                                        </span>{' '}
-                                        {bookData.genre.name}
-                                    </p>
-                                </div>
+                                <p className="text-sm text-gray-600">
+                                    <span className="font-medium">
+                                        Author:
+                                    </span>{' '}
+                                    {bookData.author}
+                                </p>
+                                <p className="text-sm text-gray-600">
+                                    <span className="font-medium">ISBN:</span>{' '}
+                                    {bookData.isbn}
+                                </p>
+                                <p className="text-sm text-gray-600">
+                                    <span className="font-medium">
+                                        Published Date:
+                                    </span>{' '}
+                                    {new Date(
+                                        bookData.publicationDate
+                                    ).toLocaleDateString()}
+                                </p>
+                                <p className="text-sm text-gray-600">
+                                    <span className="font-medium">Genre:</span>{' '}
+                                    {bookData.genre.name}
+                                </p>
                             </>
                         )}
+
                         <button
                             onClick={handleEditClick}
-                            className="mt-6 bg-green-500 text-white px-4 py-2 rounded-lg shadow hover:bg-green-600 focus:outline-none"
+                            className="mt-8 w-full md:w-1/2 self-center bg-blue-500 text-white px-4 py-2 rounded-lg shadow hover:bg-blue-600 focus:outline-none transition-colors duration-200"
                         >
-                            {isEditing ? 'Save' : 'Edit'}
+                            {isEditing ? 'Save Changes' : 'Edit'}
                         </button>
                     </div>
                 </div>
